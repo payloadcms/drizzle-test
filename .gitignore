@@ -1,3 +1,5 @@
+*.db
+
 # Created by https://www.toptal.com/developers/gitignore/api/macos,visualstudiocode,node,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,visualstudiocode,node,windows
 
@@ -8,7 +10,8 @@
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*

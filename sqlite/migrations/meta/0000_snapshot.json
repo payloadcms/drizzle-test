@@ -1,9 +1,53 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "938000fc-1efe-45f5-906c-49646bfa21dd",
+  "id": "ee5e1ed4-114b-4335-900b-94d4c8b0df2f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
+    "pages": {
+      "name": "pages",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {}
+    },
+    "people": {
+      "name": "people",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "full_name": {
+          "name": "full_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {}
+    },
     "posts": {
       "name": "posts",
       "columns": {
@@ -27,10 +71,94 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "relation_has_one": {
+          "name": "relation_has_one",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "posts_relation_has_one_pages_id_fk": {
+          "name": "posts_relation_has_one_pages_id_fk",
+          "tableFrom": "posts",
+          "tableTo": "pages",
+          "columnsFrom": [
+            "relation_has_one"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {}
+    },
+    "posts_relation_has_many": {
+      "name": "posts_relation_has_many",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "pages_id": {
+          "name": "pages_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "_posts_id": {
+          "name": "_posts_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "posts_relation_has_many_pages_id_pages_id_fk": {
+          "name": "posts_relation_has_many_pages_id_pages_id_fk",
+          "tableFrom": "posts_relation_has_many",
+          "tableTo": "pages",
+          "columnsFrom": [
+            "pages_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "posts_relation_has_many__posts_id_posts_id_fk": {
+          "name": "posts_relation_has_many__posts_id_posts_id_fk",
+          "tableFrom": "posts_relation_has_many",
+          "tableTo": "posts",
+          "columnsFrom": [
+            "_posts_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {}
     },
     "posts_locales": {
@@ -43,11 +171,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "locale": {
-          "name": "locale",
+        "_locale": {
+          "name": "_locale",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "title": {
@@ -64,22 +192,22 @@
           "notNull": false,
           "autoincrement": false
         },
-        "post_id": {
-          "name": "post_id",
+        "_post_id": {
+          "name": "_post_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "posts_locales_post_id_posts_id_fk": {
-          "name": "posts_locales_post_id_posts_id_fk",
+        "posts_locales__post_id_posts_id_fk": {
+          "name": "posts_locales__post_id_posts_id_fk",
           "tableFrom": "posts_locales",
           "tableTo": "posts",
           "columnsFrom": [
-            "post_id"
+            "_post_id"
           ],
           "columnsTo": [
             "id"
@@ -100,11 +228,61 @@
           "notNull": true,
           "autoincrement": false
         },
-        "locale": {
-          "name": "locale",
+        "_locale": {
+          "name": "_locale",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
+          "autoincrement": false
+        },
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "_posts_id": {
+          "name": "_posts_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "posts_my_array_field__posts_id_posts_id_fk": {
+          "name": "posts_my_array_field__posts_id_posts_id_fk",
+          "tableFrom": "posts_my_array_field",
+          "tableTo": "posts",
+          "columnsFrom": [
+            "_posts_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {}
+    },
+    "posts_my_array_field_locales": {
+      "name": "posts_my_array_field_locales",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_locale": {
+          "name": "_locale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
           "autoincrement": false
         },
         "sub_field": {
@@ -114,29 +292,22 @@
           "notNull": false,
           "autoincrement": false
         },
-        "order": {
-          "name": "order",
+        "post_my_array_field_id": {
+          "name": "post_my_array_field_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "posts_id": {
-          "name": "posts_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "posts_my_array_field_posts_id_posts_id_fk": {
-          "name": "posts_my_array_field_posts_id_posts_id_fk",
-          "tableFrom": "posts_my_array_field",
-          "tableTo": "posts",
+        "posts_my_array_field_locales_post_my_array_field_id_posts_my_array_field_id_fk": {
+          "name": "posts_my_array_field_locales_post_my_array_field_id_posts_my_array_field_id_fk",
+          "tableFrom": "posts_my_array_field_locales",
+          "tableTo": "posts_my_array_field",
           "columnsFrom": [
-            "posts_id"
+            "post_my_array_field_id"
           ],
           "columnsTo": [
             "id"

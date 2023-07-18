@@ -5,7 +5,16 @@ export const posts = sqliteTable('posts', {
   id: integer('id').primaryKey(),
   createdAt: integer('created_at', { mode: 'timestamp' }),
   updatedAt: integer('updated_at', { mode: 'timestamp' }),
-  relationHasOne: integer('relation_has_one').references(() => pages.id)
+  relationHasOne: integer('relation_has_one').references(() => pages.id),
+  // relationHasOnePoly: integer('relation_has_one'),
+  // relationHasOnePolyType: text('relation_has_one_poly_type')
+})
+
+export const postsRelationHasOnePoly = sqliteTable('posts_relation_has_one_poly', {
+  id: integer('id').primaryKey(),
+  pagesID: integer('pages_id').references(() => pages.id),
+  peopleID: integer('people_id').references(() => people.id),
+  _postsID: integer('_posts_id').references(() => posts.id),
 })
 
 export const postsRelationHasMany = sqliteTable('posts_relation_has_many', {
@@ -56,6 +65,19 @@ export const postsRelations = relations(posts, ({ many, one }) => ({
   _locales: many(posts_locales),
   myArrayField: many(posts_my_array_field),
 }));
+
+export const postsRelationsHasOnePoly = relations(postsRelationHasOnePoly, ({ many }) => ({
+    relationHasOnePolyPeople: many(postsRelationHasOnePoly),
+    // relationHasOnePolyPeople: many(people, {
+    //   fields: [postsRelationHasOnePoly.peopleID],
+    //   references: [people.id],
+    // }),
+    // relationHasOnePolyPages: many(pages, {
+    //   fields: [postsRelationHasOnePoly.pagesID],
+    //   references: [pages.id],
+    // }),
+  })
+)
 
 export const postsRelationHasManyRelations = relations(postsRelationHasMany, ({ one }) => ({
   _postsID: one(posts, {

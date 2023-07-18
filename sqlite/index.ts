@@ -13,6 +13,7 @@ const {
   people,
   posts,
   postsRelationHasMany,
+  postsRelationHasOnePoly,
   posts_locales,
   posts_my_array_field,
   posts_my_array_field_locales
@@ -42,6 +43,14 @@ const start = async () => {
   db.insert(postsRelationHasMany).values([
     { pagesID: pagesRes[0].id, _postsID: post.id, _order: 1, },
     { pagesID: pagesRes[1].id, _postsID: post.id, _order: 2, },
+  ]).returning().all()
+
+  // Add hasOnePoly relations
+  db.insert(postsRelationHasOnePoly).values([
+    { pagesID: pagesRes[1].id, _postsID: post.id, },
+  ]).returning().all()
+  db.insert(postsRelationHasOnePoly).values([
+    { peopleID: peopleRes[0].id, _postsID: post.id, },
   ]).returning().all()
 
   // Then create localized content
@@ -78,6 +87,14 @@ const start = async () => {
           _order: false,
           id: false,
           _postsID: false,
+        }
+      },
+      postsRelationHasOnePoly: {
+        where: ({ pages_id }, { eq }) => eq(),
+        columns: {
+          id: false,
+          _postID: false,
+          _locale: false,
         }
       },
       _locales: {

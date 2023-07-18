@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "rimraf db.sqlite && ts-node index.ts",
+    "start": "yarn rimraf db.sqlite && ts-node index.ts",
     "generate": "drizzle-kit generate:sqlite --out migrations --schema schema.ts"
   },
   "dependencies": {

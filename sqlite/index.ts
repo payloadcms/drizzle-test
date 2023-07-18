@@ -20,15 +20,18 @@ const start = async () => {
   // Then create localized content
   // QUESTION
   // Do we have to run these insert operations separately? Will there be nested insert?
-  db.insert(posts_locales).values({ locale: 'en', title: 'hello', number: 1337, postID: post.id }).returning().get()
-  db.insert(posts_locales).values({ locale: 'es', title: 'hola', number: 42069, postID: post.id }).returning().get()
+  // We'd like to run this alongside of the above posts insert
+  db.insert(posts_locales).values([
+    { locale: 'en', title: 'hello', number: 1337, postID: post.id },
+    { locale: 'es', title: 'hola', number: 42069, postID: post.id }
+  ]).returning().get()
 
   // Then create a few rows for the array field (localized)
   // QUESTION
   // Is there a better way to order these rows, without having to store an order field?
   db.insert(posts_my_array_field).values([
-    { order: 1, subField: 'hello 1', postID: post.id },
-    { order: 2, subField: 'hello 2', postID: post.id }
+    { order: 1, subField: 'hello 1', postID: post.id, locale: 'en' },
+    { order: 2, subField: 'hello 2', postID: post.id, locale: 'en' }
   ]).returning().get()
 
   // Now we can make one query to get docs with locales and array fields

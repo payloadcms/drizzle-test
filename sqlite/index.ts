@@ -2,6 +2,8 @@ import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
 import Database from 'better-sqlite3'
 import * as schema from './schema'
+import { transform } from './transform'
+import { Posts } from './payload.config'
 
 const sqlite = new Database('db.sqlite')
 const db = drizzle(sqlite, { schema })
@@ -12,11 +14,10 @@ const {
   pages,
   people,
   posts,
-  postsRelationHasMany,
-  postsRelationHasOnePoly,
+  posts_relationships,
   posts_locales,
-  posts_my_array_field,
-  posts_my_array_field_locales,
+  posts_my_array,
+  posts_my_array_locales,
 } = schema
 
 const start = async () => {
@@ -40,27 +41,20 @@ const start = async () => {
     .values({
       createdAt: new Date(),
       updatedAt: new Date(),
-      relationHasOne: pagesRes[0].id,
     })
     .returning()
     .get()
 
-  // Add hasMany relations
-  db.insert(postsRelationHasMany)
+  // Add post relationships
+  db.insert(posts_relationships)
     .values([
-      { pagesID: pagesRes[0].id, _postsID: post.id, _order: 1 },
-      { pagesID: pagesRes[1].id, _postsID: post.id, _order: 2 },
+      { pagesID: pagesRes[0].id, parent: post.id, path: 'relationHasOne' },
+      { peopleID: peopleRes[0].id, parent: post.id, path: 'relationHasOnePoly' },
+      { pagesID: pagesRes[0].id, parent: post.id, order: 1, path: 'relationHasMany' },
+      { pagesID: pagesRes[1].id, parent: post.id, order: 2, path: 'relationHasMany' },
+      { peopleID: peopleRes[0].id, parent: post.id, order: 1, path: 'relationHasManyPoly' },
+      { pagesID: pagesRes[1].id, parent: post.id, order: 2, path: 'relationHasManyPoly' },
     ])
-    .returning()
-    .all()
-
-  // Add hasOnePoly relations
-  db.insert(postsRelationHasOnePoly)
-    .values([{ pagesID: pagesRes[1].id, _postsID: post.id }])
-    .returning()
-    .all()
-  db.insert(postsRelationHasOnePoly)
-    .values([{ peopleID: peopleRes[0].id, _postsID: post.id }])
     .returning()
     .all()
 
@@ -80,7 +74,7 @@ const start = async () => {
   // QUESTION
   // Is there a better way to order these rows, without having to store an order field?
   const arrayRows = db
-    .insert(posts_my_array_field)
+    .insert(posts_my_array)
     .values([
       { _order: 1, _postID: post.id, _locale: 'en' },
       { _order: 2, _postID: post.id, _locale: 'en' },
@@ -90,10 +84,10 @@ const start = async () => {
 
   // There is a localized subfield to populate on the array fields
   // so we need to grab that as well
-  db.insert(posts_my_array_field_locales)
+  db.insert(posts_my_array_locales)
     .values([
-      { _postMyArrayFieldID: arrayRows[0].id, subField: 'hello 1', _locale: 'en' },
-      { _postMyArrayFieldID: arrayRows[1].id, subField: 'hello 2', _locale: 'en' },
+      { _postMyArrayID: arrayRows[0].id, subField: 'hello 1', _locale: 'en' },
+      { _postMyArrayID: arrayRows[1].id, subField: 'hello 2', _locale: 'en' },
     ])
     .returning()
     .get()
@@ -101,24 +95,16 @@ const start = async () => {
   // Now we can make one query to get docs with locales and array fields
   const result = db.query.posts.findMany({
     with: {
-      relationHasOne: true,
-      relationHasMany: {
-        orderBy: ({ _order }, { asc }) => [asc(_order)],
-        columns: {
-          _order: false,
-          id: false,
-          _postsID: false,
-        },
-      },
-      relationsHasManyPoly: {
-        where: ({ pagesID, peopleID }, { eq }) =>
-          eq(pagesID, pagesRes[1].id) || eq(peopleID, peopleRes[0].id),
+      _relationships: {
+        orderBy: ({ order }, { asc }) => [asc(order)],
         columns: {
           id: false,
-          _postsID: false,
-          pagesID: false,
-          peopleID: false,
+          parent: false,
         },
+        with: {
+          pagesID: true,
+          peopleID: true,
+        }
       },
       _locales: {
         where: ({ _locale }, { eq }) => eq(_locale, 'en'),
@@ -128,7 +114,7 @@ const start = async () => {
           _locale: false,
         },
       },
-      myArrayField: {
+      myArray: {
         orderBy: ({ _order }, { asc }) => [asc(_order)],
         columns: {
           _postID: false,
@@ -140,7 +126,7 @@ const start = async () => {
             where: ({ _locale }, { eq }) => eq(_locale, 'en'),
             columns: {
               id: false,
-              _postMyArrayFieldID: false,
+              _postMyArrayID: false,
               _locale: false,
             },
           },
@@ -150,6 +136,10 @@ const start = async () => {
   })
 
   console.dir(result, { depth: null })
+
+  const payloadFormattedResult = transform({ data: result, locale: 'en', fields: Posts.fields })
+
+  console.dir(payloadFormattedResult, { depth: null })
 }
 
 start()

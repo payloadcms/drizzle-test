@@ -11,18 +11,7 @@ CREATE TABLE `people` (
 CREATE TABLE `posts` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`created_at` integer,
-	`updated_at` integer,
-	`relation_has_one` integer,
-	FOREIGN KEY (`relation_has_one`) REFERENCES `pages`(`id`) ON UPDATE no action ON DELETE no action
-);
---> statement-breakpoint
-CREATE TABLE `posts_relation_has_many` (
-	`id` integer PRIMARY KEY NOT NULL,
-	`pages_id` integer,
-	`_posts_id` integer NOT NULL,
-	`_order` integer NOT NULL,
-	FOREIGN KEY (`pages_id`) REFERENCES `pages`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`_posts_id`) REFERENCES `posts`(`id`) ON UPDATE no action ON DELETE no action
+	`updated_at` integer
 );
 --> statement-breakpoint
 CREATE TABLE `posts_locales` (
@@ -34,7 +23,7 @@ CREATE TABLE `posts_locales` (
 	FOREIGN KEY (`_post_id`) REFERENCES `posts`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE `posts_my_array_field` (
+CREATE TABLE `posts_my_array` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`_locale` text,
 	`_order` integer,
@@ -42,10 +31,22 @@ CREATE TABLE `posts_my_array_field` (
 	FOREIGN KEY (`_posts_id`) REFERENCES `posts`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE `posts_my_array_field_locales` (
+CREATE TABLE `posts_my_array_locales` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`_locale` text NOT NULL,
 	`sub_field` text,
-	`post_my_array_field_id` integer NOT NULL,
-	FOREIGN KEY (`post_my_array_field_id`) REFERENCES `posts_my_array_field`(`id`) ON UPDATE no action ON DELETE no action
+	`post_my_array_id` integer NOT NULL,
+	FOREIGN KEY (`post_my_array_id`) REFERENCES `posts_my_array`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `posts_relationships` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`parent_id` integer NOT NULL,
+	`path` text NOT NULL,
+	`order` integer,
+	`pages_id` integer,
+	`people_id` integer,
+	FOREIGN KEY (`parent_id`) REFERENCES `posts`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`pages_id`) REFERENCES `pages`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`people_id`) REFERENCES `people`(`id`) ON UPDATE no action ON DELETE no action
 );

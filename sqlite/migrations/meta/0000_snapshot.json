@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "ee5e1ed4-114b-4335-900b-94d4c8b0df2f",
+  "id": "7e72db9c-950e-4291-be73-0076f81c5d74",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "pages": {
@@ -71,94 +71,10 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "relation_has_one": {
-          "name": "relation_has_one",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "posts_relation_has_one_pages_id_fk": {
-          "name": "posts_relation_has_one_pages_id_fk",
-          "tableFrom": "posts",
-          "tableTo": "pages",
-          "columnsFrom": [
-            "relation_has_one"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {}
-    },
-    "posts_relation_has_many": {
-      "name": "posts_relation_has_many",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "pages_id": {
-          "name": "pages_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "_posts_id": {
-          "name": "_posts_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "_order": {
-          "name": "_order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "posts_relation_has_many_pages_id_pages_id_fk": {
-          "name": "posts_relation_has_many_pages_id_pages_id_fk",
-          "tableFrom": "posts_relation_has_many",
-          "tableTo": "pages",
-          "columnsFrom": [
-            "pages_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "posts_relation_has_many__posts_id_posts_id_fk": {
-          "name": "posts_relation_has_many__posts_id_posts_id_fk",
-          "tableFrom": "posts_relation_has_many",
-          "tableTo": "posts",
-          "columnsFrom": [
-            "_posts_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {}
     },
     "posts_locales": {
@@ -218,8 +134,8 @@
       },
       "compositePrimaryKeys": {}
     },
-    "posts_my_array_field": {
-      "name": "posts_my_array_field",
+    "posts_my_array": {
+      "name": "posts_my_array",
       "columns": {
         "id": {
           "name": "id",
@@ -252,9 +168,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "posts_my_array_field__posts_id_posts_id_fk": {
-          "name": "posts_my_array_field__posts_id_posts_id_fk",
-          "tableFrom": "posts_my_array_field",
+        "posts_my_array__posts_id_posts_id_fk": {
+          "name": "posts_my_array__posts_id_posts_id_fk",
+          "tableFrom": "posts_my_array",
           "tableTo": "posts",
           "columnsFrom": [
             "_posts_id"
@@ -268,8 +184,8 @@
       },
       "compositePrimaryKeys": {}
     },
-    "posts_my_array_field_locales": {
-      "name": "posts_my_array_field_locales",
+    "posts_my_array_locales": {
+      "name": "posts_my_array_locales",
       "columns": {
         "id": {
           "name": "id",
@@ -292,8 +208,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "post_my_array_field_id": {
-          "name": "post_my_array_field_id",
+        "post_my_array_id": {
+          "name": "post_my_array_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -302,12 +218,102 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "posts_my_array_field_locales_post_my_array_field_id_posts_my_array_field_id_fk": {
-          "name": "posts_my_array_field_locales_post_my_array_field_id_posts_my_array_field_id_fk",
-          "tableFrom": "posts_my_array_field_locales",
-          "tableTo": "posts_my_array_field",
+        "posts_my_array_locales_post_my_array_id_posts_my_array_id_fk": {
+          "name": "posts_my_array_locales_post_my_array_id_posts_my_array_id_fk",
+          "tableFrom": "posts_my_array_locales",
+          "tableTo": "posts_my_array",
           "columnsFrom": [
-            "post_my_array_field_id"
+            "post_my_array_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {}
+    },
+    "posts_relationships": {
+      "name": "posts_relationships",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "path": {
+          "name": "path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pages_id": {
+          "name": "pages_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "people_id": {
+          "name": "people_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "posts_relationships_parent_id_posts_id_fk": {
+          "name": "posts_relationships_parent_id_posts_id_fk",
+          "tableFrom": "posts_relationships",
+          "tableTo": "posts",
+          "columnsFrom": [
+            "parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "posts_relationships_pages_id_pages_id_fk": {
+          "name": "posts_relationships_pages_id_pages_id_fk",
+          "tableFrom": "posts_relationships",
+          "tableTo": "pages",
+          "columnsFrom": [
+            "pages_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "posts_relationships_people_id_people_id_fk": {
+          "name": "posts_relationships_people_id_people_id_fk",
+          "tableFrom": "posts_relationships",
+          "tableTo": "people",
+          "columnsFrom": [
+            "people_id"
           ],
           "columnsTo": [
             "id"

@@ -5,25 +5,15 @@ export const posts = sqliteTable('posts', {
   id: integer('id').primaryKey(),
   createdAt: integer('created_at', { mode: 'timestamp' }),
   updatedAt: integer('updated_at', { mode: 'timestamp' }),
-  relationHasOne: integer('relation_has_one').references(() => pages.id),
-  // relationHasOnePoly: integer('relation_has_one'),
-  // relationHasOnePolyType: text('relation_has_one_poly_type')
 })
 
-export const postsRelationHasOnePoly = sqliteTable('posts_relation_has_one_poly', {
+export const posts_relationships = sqliteTable('posts_relationships', {
   id: integer('id').primaryKey(),
+  parent: integer('parent_id').references(() => posts.id).notNull(),
+  path: text('path').notNull(),
+  order: integer('order'),
   pagesID: integer('pages_id').references(() => pages.id),
   peopleID: integer('people_id').references(() => people.id),
-  _postsID: integer('_posts_id').references(() => posts.id),
-})
-
-export const postsRelationHasMany = sqliteTable('posts_relation_has_many', {
-  id: integer('id').primaryKey(),
-  pagesID: integer('pages_id').references(() => pages.id),
-  _postsID: integer('_posts_id')
-    .references(() => posts.id)
-    .notNull(),
-  _order: integer('_order').notNull(),
 })
 
 export const posts_locales = sqliteTable('posts_locales', {
@@ -36,19 +26,19 @@ export const posts_locales = sqliteTable('posts_locales', {
     .notNull(),
 })
 
-export const posts_my_array_field = sqliteTable('posts_my_array_field', {
+export const posts_my_array = sqliteTable('posts_my_array', {
   id: integer('id').primaryKey(),
   _locale: text('_locale'),
   _order: integer('_order'),
   _postID: integer('_posts_id').references(() => posts.id),
 })
 
-export const posts_my_array_field_locales = sqliteTable('posts_my_array_field_locales', {
+export const posts_my_array_locales = sqliteTable('posts_my_array_locales', {
   id: integer('id').primaryKey(),
   _locale: text('_locale').notNull(),
   subField: text('sub_field'),
-  _postMyArrayFieldID: integer('post_my_array_field_id')
-    .references(() => posts_my_array_field.id)
+  _postMyArrayID: integer('post_my_array_id')
+    .references(() => posts_my_array.id)
     .notNull(),
 })
 
@@ -62,40 +52,25 @@ export const pages = sqliteTable('pages', {
   slug: text('slug'),
 })
 
-export const postsRelations = relations(posts, ({ many, one }) => ({
-  relationHasOne: one(pages, {
-    fields: [posts.relationHasOne],
-    references: [pages.id],
-  }),
-  relationHasMany: many(postsRelationHasMany),
-  relationsHasManyPoly: many(postsRelationHasOnePoly, {
-    relationName: 'postsRelationHasMany',
-  }),
+export const postsRelations = relations(posts, ({ many }) => ({
+  _relationships: many(posts_relationships),
   _locales: many(posts_locales),
-  myArrayField: many(posts_my_array_field),
+  myArray: many(posts_my_array),
 }))
 
-export const postsRelationsHasOnePoly = relations(postsRelationHasOnePoly, ({ many }) => ({
-  relationHasOnePolyPeople: many(postsRelationHasOnePoly),
-  // relationHasOnePolyPeople: many(people, {
-  //   fields: [postsRelationHasOnePoly.peopleID],
-  //   references: [people.id],
-  // }),
-  // relationHasOnePolyPages: many(pages, {
-  //   fields: [postsRelationHasOnePoly.pagesID],
-  //   references: [pages.id],
-  // }),
-}))
-
-export const postsRelationHasManyRelations = relations(postsRelationHasMany, ({ one }) => ({
-  _postsID: one(posts, {
-    fields: [postsRelationHasMany._postsID],
+export const postsRelationshipsRelations = relations(posts_relationships, ({ one }) => ({
+  parent: one(posts, {
+    fields: [posts_relationships.parent],
     references: [posts.id],
   }),
-  pageID: one(pages, {
-    fields: [postsRelationHasMany.pagesID],
+  pagesID: one(pages, {
+    fields: [posts_relationships.pagesID],
     references: [pages.id],
   }),
+  peopleID: one(people, {
+    fields: [posts_relationships.peopleID],
+    references: [people.id],
+  })
 }))
 
 export const postsLocalesRelations = relations(posts_locales, ({ one }) => ({
@@ -105,20 +80,20 @@ export const postsLocalesRelations = relations(posts_locales, ({ one }) => ({
   }),
 }))
 
-export const postsMyArrayFieldRelations = relations(posts_my_array_field, ({ one, many }) => ({
+export const postsMyArrayRelations = relations(posts_my_array, ({ one, many }) => ({
   _postsID: one(posts, {
-    fields: [posts_my_array_field._postID],
+    fields: [posts_my_array._postID],
     references: [posts.id],
   }),
-  _locales: many(posts_my_array_field_locales),
+  _locales: many(posts_my_array_locales),
 }))
 
-export const postsMyArrayFieldLocalesRelations = relations(
-  posts_my_array_field_locales,
+export const postsMyArrayLocalesRelations = relations(
+  posts_my_array_locales,
   ({ one }) => ({
-    _postsMyArrayFieldID: one(posts_my_array_field, {
-      fields: [posts_my_array_field_locales._postMyArrayFieldID],
-      references: [posts_my_array_field.id],
+    _postsMyArrayID: one(posts_my_array, {
+      fields: [posts_my_array_locales._postMyArrayID],
+      references: [posts_my_array.id],
     }),
   }),
 )

@@ -5,8 +5,8 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "command": "yarn start",
-      "name": "Run SQLite",
+      "command": "yarn test",
+      "name": "Debug SQLite Jest Tests",
       "request": "launch",
       "type": "node-terminal",
       "cwd": "${workspaceFolder}/sqlite"

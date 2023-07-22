@@ -1,4 +1,4 @@
-import { Config } from 'payload/config'
+import { buildConfig } from 'payload/config'
 import { CollectionConfig } from 'payload/types'
 
 export const Posts: CollectionConfig = {
@@ -51,12 +51,42 @@ export const Posts: CollectionConfig = {
       hasMany: true,
       relationTo: ['people', 'pages']
     },
+    {
+      name: 'myGroup',
+      type: 'group',
+      fields: [
+        {
+          name: 'subField',
+          type: 'text',
+        },
+        {
+          name: 'subFieldLocalized',
+          type: 'text',
+          localized: true,
+        },
+        {
+          name: 'subGroup',
+          type: 'group',
+          fields: [
+            {
+              name: 'subSubField',
+              type: 'text',
+            },
+            {
+              name: 'subSubFieldLocalized',
+              type: 'text',
+              localized: true,
+            }
+          ]
+        }
+      ]
+    }
   ]
 }
 
 // This is the reference Payload config that we will build
 // It's not really USED in this project - it's just a demo
-export const config: Config = {
+const config = buildConfig({
   collections: [
     Posts,
     {
@@ -65,7 +95,7 @@ export const config: Config = {
         {
           name: 'slug',
           type: 'text',
-        }
+        },
       ]
     },
     {
@@ -79,4 +109,6 @@ export const config: Config = {
       ]
     },
   ]
-}
+})
+
+export default config

@@ -41,6 +41,8 @@ const start = async () => {
     .values({
       createdAt: new Date(),
       updatedAt: new Date(),
+      myGroup_subField: 'hello',
+      myGroup_subGroup_subSubField: 'sub hello',
     })
     .returning()
     .get()
@@ -64,8 +66,8 @@ const start = async () => {
   // We'd like to run this alongside of the above posts insert
   db.insert(posts_locales)
     .values([
-      { _locale: 'en', title: 'hello', number: 1337, _postID: post.id },
-      { _locale: 'es', title: 'hola', number: 42069, _postID: post.id },
+      { _locale: 'en', title: 'hello', number: 1337, _postID: post.id, myGroup_subFieldLocalized: 'hello in english', myGroup_subGroup_subSubFieldLocalized: 'sub hello in english' },
+      { _locale: 'es', title: 'hola', number: 42069, _postID: post.id, myGroup_subFieldLocalized: 'hello in spanish', myGroup_subGroup_subSubFieldLocalized: 'sub hello in spanish' },
     ])
     .returning()
     .get()

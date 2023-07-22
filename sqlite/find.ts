@@ -22,48 +22,7 @@ export const find = ({
   fallbackLocale,
   locale,
 }: FindArgs) => {
-  // const findManyArgs = {
-  //   with: {
-  //     _relationships: {
-  //       orderBy: ({ order }, { asc }) => [asc(order)],
-  //       columns: {
-  //         id: false,
-  //         parent: false,
-  //       },
-  //       with: buildWithFromDepth({ collectionSlugs, depth })
-  //     },
-  //     _locales: {
-  //       where: createLocaleWhereQuery({ fallbackLocale, locale }),
-  //       columns: {
-  //         id: false,
-  //         _postID: false,
-  //         _locale: false,
-  //       },
-  //     },
-  //     myArray: {
-  //       orderBy: ({ _order }, { asc }) => [asc(_order)],
-  //       columns: {
-  //         _postID: false,
-  //         _order: false,
-  //         _locale: false,
-  //       },
-  //       with: {
-  //         _locales: {
-  //           where: ({ _locale }, { eq }) => eq(_locale, 'en'),
-  //           columns: {
-  //             id: false,
-  //             _postMyArrayID: false,
-  //             _locale: false,
-  //           },
-  //         },
-  //       },
-  //     },
-  //   }
-  // }
-
-  // const result = db.query[collection.slug].findMany(findManyArgs)
-
-  const result = db.query.posts.findMany({
+  const findManyArgs = {
     with: {
       _relationships: {
         orderBy: ({ order }, { asc }) => [asc(order)],
@@ -71,13 +30,10 @@ export const find = ({
           id: false,
           parent: false,
         },
-        with: {
-          pagesID: true,
-          peopleID: true,
-        }
+        with: buildWithFromDepth({ collectionSlugs, depth })
       },
       _locales: {
-        where: ({ _locale }, { eq }) => eq(_locale, 'en'),
+        where: createLocaleWhereQuery({ fallbackLocale, locale }),
         columns: {
           id: false,
           _postID: false,
@@ -102,8 +58,52 @@ export const find = ({
           },
         },
       },
-    },
-  })
+    }
+  }
+
+  const result = db.query[collection.slug].findMany(findManyArgs)
+
+  // const result = db.query.posts.findMany({
+  //   with: {
+  //     _relationships: {
+  //       orderBy: ({ order }, { asc }) => [asc(order)],
+  //       columns: {
+  //         id: false,
+  //         parent: false,
+  //       },
+  //       with: {
+  //         pagesID: true,
+  //         peopleID: true,
+  //       }
+  //     },
+  //     _locales: {
+  //       where: ({ _locale }, { eq }) => eq(_locale, 'en'),
+  //       columns: {
+  //         id: false,
+  //         _postID: false,
+  //         _locale: false,
+  //       },
+  //     },
+  //     myArray: {
+  //       orderBy: ({ _order }, { asc }) => [asc(_order)],
+  //       columns: {
+  //         _postID: false,
+  //         _order: false,
+  //         _locale: false,
+  //       },
+  //       with: {
+  //         _locales: {
+  //           where: ({ _locale }, { eq }) => eq(_locale, 'en'),
+  //           columns: {
+  //             id: false,
+  //             _postMyArrayID: false,
+  //             _locale: false,
+  //           },
+  //         },
+  //       },
+  //     },
+  //   },
+  // })
 
   return result
 }

@@ -1,5 +1,6 @@
 type MergeLocalesArgs = {
   data: Record<string, unknown>
+  fallbackLocale?: string
   locale?: string
 }
 
@@ -7,24 +8,40 @@ type MergeLocalesArgs = {
 // based on which locale(s) are asked for
 export const mergeLocales = ({
   data,
+  fallbackLocale,
   locale
 }: MergeLocalesArgs): Record<string, unknown> => {
   if (Array.isArray(data._locales)) {
-    if (locale && data._locales.length === 1) {
+    if (locale) {
+      const matchedLocale = data._locales.find((row) => row._locale === locale)
 
-      const merged = {
-        ...data,
-        ...data._locales[0]
+      if (matchedLocale) {
+        const merged = {
+          ...data,
+          ...matchedLocale
+        }
+
+        delete merged._locales
+        delete merged._locale
+        return merged
+      } else if (fallbackLocale) {
+        const matchedFallbackLocale = data._locales.find((row) => row._locale === fallbackLocale)
+
+        if (matchedFallbackLocale) {
+          const merged = {
+            ...data,
+            ...matchedFallbackLocale,
+          }
+          delete merged._locales
+          delete merged._locale
+          return merged
+        }
       }
-
-      delete merged._locales
-
-      return merged
     }
 
     const fieldLocales = data._locales.reduce((res, row) => {
-      const locale = row.locale
-      delete row.locale;
+      const locale = row._locale
+      delete row._locale;
 
       if (locale) {
         Object.entries(row).forEach(([field, val]) => {

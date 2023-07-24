@@ -19,6 +19,9 @@ const {
   posts_locales,
   posts_my_array,
   posts_my_array_locales,
+  posts_block1,
+  posts_block1_locales,
+  posts_block2,
 } = schema
 
 describe('SQLite Tests', () => {
@@ -94,12 +97,12 @@ describe('SQLite Tests', () => {
 
     // Then create localized content
     // QUESTION
-    // Do we have to run these insert operations separately? Will there be nested insert?
+    // Do we have to run these insert operations separately? Will there be nested insert in Drizzle?
     // We'd like to run this alongside of the above posts insert
     db.insert(posts_locales)
       .values([
-        { _locale: 'en', title: 'hello', number: 1337, _postID: post.id, myGroup_subFieldLocalized: myGroup_subFieldLocalizedEN, myGroup_subGroup_subSubFieldLocalized: myGroup_subGroup_subSubFieldLocalizedEN },
-        { _locale: 'es', title: 'hola', number: 42069, _postID: post.id, myGroup_subFieldLocalized: myGroup_subFieldLocalizedES, myGroup_subGroup_subSubFieldLocalized: myGroup_subGroup_subSubFieldLocalizedES },
+        { _locale: 'en', title: 'hello', number: 1337, _parentID: post.id, myGroup_subFieldLocalized: myGroup_subFieldLocalizedEN, myGroup_subGroup_subSubFieldLocalized: myGroup_subGroup_subSubFieldLocalizedEN },
+        { _locale: 'es', title: 'hola', number: 42069, _parentID: post.id, myGroup_subFieldLocalized: myGroup_subFieldLocalizedES, myGroup_subGroup_subSubFieldLocalized: myGroup_subGroup_subSubFieldLocalizedES },
       ])
       .returning()
       .get()
@@ -110,21 +113,44 @@ describe('SQLite Tests', () => {
     const arrayRows = db
       .insert(posts_my_array)
       .values([
-        { _order: 1, _postID: post.id, _locale: 'en' },
-        { _order: 2, _postID: post.id, _locale: 'en' },
+        { _order: 1, _parentID: post.id, _locale: 'en' },
+        { _order: 2, _parentID: post.id, _locale: 'en' },
       ])
       .returning()
       .all()
 
     // There is a localized subfield to populate on the array fields
-    // so we need to grab that as well
+    // so we need to insert those as well
     db.insert(posts_my_array_locales)
       .values([
-        { _postMyArrayID: arrayRows[0].id, subField: myArraySubField1, _locale: 'en' },
-        { _postMyArrayID: arrayRows[1].id, subField: myArraySubField2, _locale: 'en' },
+        { _parentID: arrayRows[0].id, subField: myArraySubField1, _locale: 'en' },
+        { _parentID: arrayRows[1].id, subField: myArraySubField2, _locale: 'en' },
       ])
       .returning()
       .get()
+
+    // Create block data for the myBlocks field
+    const block1Rows = db
+      .insert(posts_block1)
+      .values(
+        { _order: 1, _parentID: post.id, _locale: 'en', nonLocalizedText: 'hello', _path: 'myBlocks' },
+      )
+      .returning()
+      .all()
+
+    db.insert(posts_block1_locales)
+      .values(
+        { _parentID: block1Rows[0].id, _locale: 'en', localizedText: 'hello in english' },
+      )
+      .returning()
+      .all()
+
+    db.insert(posts_block2)
+      .values(
+        { _order: 2, _parentID: post.id, _locale: 'en', number: 123, _path: 'myBlocks' },
+      )
+      .returning()
+      .all()
   })
 
   it('finds and transforms data to payload-expected shape', async () => {

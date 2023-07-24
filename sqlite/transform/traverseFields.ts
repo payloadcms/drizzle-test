@@ -1,12 +1,21 @@
 import { fieldAffectsData } from 'payload/dist/fields/config/types'
 import { Field } from 'payload/types'
 import { mergeLocales } from './mergeLocales'
+import { BlocksMap } from '../utilities/createBlocksMap'
 
 type TraverseFieldsArgs = {
+  /**
+   * Pre-formatted blocks map
+   */
+  blocks: BlocksMap
   /**
    * The full data, as returned from the Drizzle query
    */
   data: Record<string, unknown>
+  /**
+   * The locale to fall back to, if no locale present
+   */
+  fallbackLocale?: string
   /**
    * An array of Payload fields to traverse
    */
@@ -28,7 +37,7 @@ type TraverseFieldsArgs = {
    */
   siblingData: Record<string, unknown>
   /**
-   * Data corresponding to the fields to traverse 
+   * Data structure representing the nearest table from db
    */
   table: Record<string, unknown>
 }
@@ -36,7 +45,9 @@ type TraverseFieldsArgs = {
 // Traverse fields recursively, transforming data 
 // for each field type into required Payload shape
 export const traverseFields = <T extends Record<string, unknown>>({
+  blocks,
   data,
+  fallbackLocale,
   fields,
   locale,
   path,
@@ -54,10 +65,11 @@ export const traverseFields = <T extends Record<string, unknown>>({
         case 'array':
           if (Array.isArray(fieldData)) {
             result[field.name] = fieldData.map((row, i) => {
-              const dataWithLocales = mergeLocales({ data: row, locale })
+              const dataWithLocales = mergeLocales({ data: row, locale, fallbackLocale })
 
               return traverseFields<T>({
-                data: data,
+                blocks,
+                data,
                 fields: field.fields,
                 locale,
                 path: `${sanitizedPath}${field.name}.${i}`,
@@ -65,6 +77,35 @@ export const traverseFields = <T extends Record<string, unknown>>({
                 siblingData: dataWithLocales,
                 table: dataWithLocales,
               })
+            })
+          }
+
+          break;
+
+        case 'blocks':
+          const blockFieldPath = `${sanitizedPath}${field.name}`
+
+          if (Array.isArray(blocks[blockFieldPath])) {
+            result[field.name] = blocks[blockFieldPath].map((row, i) => {
+              delete row._order
+              const dataWithLocales = mergeLocales({ data: row, locale, fallbackLocale })
+              const block = field.blocks.find(({ slug }) => slug === row.blockType)
+
+              if (block) {
+                return traverseFields<T>({
+                  blocks,
+                  data,
+                  fields: block.fields,
+                  locale,
+                  path: `${blockFieldPath}.${i}`,
+                  relationships,
+                  siblingData: dataWithLocales,
+                  table: dataWithLocales,
+                })
+              }
+
+              return {}
+
             })
           }
 
@@ -86,6 +127,7 @@ export const traverseFields = <T extends Record<string, unknown>>({
           })
 
           result[field.name] = traverseFields<Record<string, unknown>>({
+            blocks,
             data,
             fields: field.fields,
             locale,

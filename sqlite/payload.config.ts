@@ -25,6 +25,35 @@ export const Posts: CollectionConfig = {
         }
       ]
     },
+    {
+      name: 'myBlocks',
+      type: 'blocks',
+      blocks: [
+        {
+          slug: 'block1',
+          fields: [
+            {
+              name: 'nonLocalizedText',
+              type: 'text',
+            },
+            {
+              name: 'localizedText',
+              type: 'text',
+              localized: true,
+            }
+          ]
+        },
+        {
+          slug: 'block2',
+          fields: [
+            {
+              name: 'number',
+              type: 'number',
+            }
+          ]
+        }
+      ]
+    },
     // Has One
     {
       name: 'relationHasOne',

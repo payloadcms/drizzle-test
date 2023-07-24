@@ -36,26 +36,42 @@ export const find = ({
         where: createLocaleWhereQuery({ fallbackLocale, locale }),
         columns: {
           id: false,
-          _postID: false,
-          _locale: false,
+          _parentID: false,
         },
       },
       myArray: {
         orderBy: ({ _order }, { asc }) => [asc(_order)],
         columns: {
-          _postID: false,
+          _parentID: false,
           _order: false,
-          _locale: false,
         },
         with: {
           _locales: {
-            where: ({ _locale }, { eq }) => eq(_locale, 'en'),
+            where: createLocaleWhereQuery({ fallbackLocale, locale }),
             columns: {
               id: false,
-              _postMyArrayID: false,
-              _locale: false,
+              _parentID: false,
             },
           },
+        },
+      },
+      _blocks_block1: {
+        columns: {
+          _parentID: false,
+        },
+        with: {
+          _locales: {
+            where: createLocaleWhereQuery({ fallbackLocale, locale }),
+            columns: {
+              id: false,
+              _parentID: false,
+            },
+          },
+        },
+      },
+      _blocks_block2: {
+        columns: {
+          _parentID: false,
         },
       },
     }
@@ -80,14 +96,14 @@ export const find = ({
   //       where: ({ _locale }, { eq }) => eq(_locale, 'en'),
   //       columns: {
   //         id: false,
-  //         _postID: false,
+  //         _parentID: false,
   //         _locale: false,
   //       },
   //     },
   //     myArray: {
   //       orderBy: ({ _order }, { asc }) => [asc(_order)],
   //       columns: {
-  //         _postID: false,
+  //         _parentID: false,
   //         _order: false,
   //         _locale: false,
   //       },
@@ -96,7 +112,7 @@ export const find = ({
   //           where: ({ _locale }, { eq }) => eq(_locale, 'en'),
   //           columns: {
   //             id: false,
-  //             _postMyArrayID: false,
+  //             _parentID: false,
   //             _locale: false,
   //           },
   //         },

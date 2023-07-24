@@ -16,6 +16,34 @@ CREATE TABLE `posts` (
 	`my_group_sub_group_sub_sub_field` text
 );
 --> statement-breakpoint
+CREATE TABLE `posts_block1` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`non_localized_text` text,
+	`_path` text NOT NULL,
+	`_locale` text,
+	`_order` integer NOT NULL,
+	`_parent_id` integer,
+	FOREIGN KEY (`_parent_id`) REFERENCES `posts`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `posts_block1_locales` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`localized_text` text,
+	`_locale` text NOT NULL,
+	`_parent_id` integer NOT NULL,
+	FOREIGN KEY (`_parent_id`) REFERENCES `posts_block1`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `posts_block2` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`number` integer,
+	`_path` text NOT NULL,
+	`_locale` text,
+	`_order` integer,
+	`_parent_id` integer,
+	FOREIGN KEY (`_parent_id`) REFERENCES `posts`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
 CREATE TABLE `posts_locales` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`_locale` text NOT NULL,
@@ -23,24 +51,24 @@ CREATE TABLE `posts_locales` (
 	`number` integer,
 	`my_group_sub_field_localized` text,
 	`my_group_sub_group_sub_sub_field_localized` text,
-	`_post_id` integer NOT NULL,
-	FOREIGN KEY (`_post_id`) REFERENCES `posts`(`id`) ON UPDATE no action ON DELETE no action
+	`_parent_id` integer NOT NULL,
+	FOREIGN KEY (`_parent_id`) REFERENCES `posts`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `posts_my_array` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`_locale` text,
-	`_order` integer,
-	`_posts_id` integer,
-	FOREIGN KEY (`_posts_id`) REFERENCES `posts`(`id`) ON UPDATE no action ON DELETE no action
+	`_order` integer NOT NULL,
+	`_parent_id` integer,
+	FOREIGN KEY (`_parent_id`) REFERENCES `posts`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `posts_my_array_locales` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`_locale` text NOT NULL,
 	`sub_field` text,
-	`post_my_array_id` integer NOT NULL,
-	FOREIGN KEY (`post_my_array_id`) REFERENCES `posts_my_array`(`id`) ON UPDATE no action ON DELETE no action
+	`_parent_id` integer NOT NULL,
+	FOREIGN KEY (`_parent_id`) REFERENCES `posts_my_array`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `posts_relationships` (

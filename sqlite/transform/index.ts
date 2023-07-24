@@ -1,11 +1,13 @@
 import { Field } from 'payload/types'
 import { traverseFields } from './traverseFields'
-import { createRelationshipMap } from './createRelationshipMap'
+import { createRelationshipMap } from '../utilities/createRelationshipMap'
 import { mergeLocales } from './mergeLocales'
 import { TypeWithID } from 'payload/dist/collections/config/types'
+import { createBlocksMap } from '../utilities/createBlocksMap'
 
 type TransformArgs = {
   data: Record<string, unknown>[]
+  fallbackLocale?: string
   fields: Field[]
   locale?: string
 }
@@ -14,6 +16,7 @@ type TransformArgs = {
 // into the shape Payload expects based on field schema
 export const transform = <T extends TypeWithID>({
   data,
+  fallbackLocale,
   fields,
   locale,
 }: TransformArgs): T[] => {
@@ -25,9 +28,12 @@ export const transform = <T extends TypeWithID>({
       delete row._relationships
     }
 
-    const dataWithLocales = mergeLocales({ data: row, locale })
+    const blocks = createBlocksMap(row)
+
+    const dataWithLocales = mergeLocales({ data: row, locale, fallbackLocale })
 
     return traverseFields<T>({
+      blocks,
       data: row,
       fields,
       locale,

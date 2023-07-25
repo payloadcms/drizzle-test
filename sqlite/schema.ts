@@ -108,11 +108,11 @@ export const postsRelationshipsRelations = relations(posts_relationships, ({ one
   }),
   // Self-referencing is currently blocked,
   // we are waiting on a fix from Drizzle
-  // postsID: one(posts, {
-  //   relationName: 'postsID',
-  //   fields: [posts_relationships.postsID],
-  //   references: [posts.id],
-  // }),
+  postsID: one(posts, {
+    relationName: 'postsID',
+    fields: [posts_relationships.postsID],
+    references: [posts.id],
+  }),
   pagesID: one(pages, {
     fields: [posts_relationships.pagesID],
     references: [pages.id],

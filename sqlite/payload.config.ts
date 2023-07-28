@@ -22,6 +22,16 @@ export const Posts: CollectionConfig = {
           name: 'subField',
           type: 'text',
           localized: true,
+        },
+        {
+          name: 'mySubArray',
+          type: 'array',
+          fields: [
+            {
+              name: 'subSubField',
+              type: 'text',
+            }
+          ]
         }
       ]
     },
@@ -81,6 +91,11 @@ export const Posts: CollectionConfig = {
       relationTo: ['people', 'pages']
     },
     {
+      name: 'selfReferencingRelationship',
+      type: 'relationship',
+      relationTo: 'posts',
+    },
+    {
       name: 'myGroup',
       type: 'group',
       fields: [
@@ -105,6 +120,16 @@ export const Posts: CollectionConfig = {
               name: 'subSubFieldLocalized',
               type: 'text',
               localized: true,
+            }
+          ]
+        },
+        {
+          name: 'groupArray',
+          type: 'array',
+          fields: [
+            {
+              name: 'groupArrayText',
+              type: 'text',
             }
           ]
         }

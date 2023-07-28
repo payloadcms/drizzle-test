@@ -19,6 +19,8 @@ const {
   posts_locales,
   posts_my_array,
   posts_my_array_locales,
+  posts_my_array_my_sub_array,
+  posts_my_group_group_array,
   posts_block1,
   posts_block1_locales,
   posts_block2,
@@ -40,8 +42,14 @@ describe('SQLite Tests', () => {
   const myGroup_subFieldLocalizedES = 'hello in spanish'
   const myGroup_subGroup_subSubFieldLocalizedEN = 'sub hello in english'
   const myGroup_subGroup_subSubFieldLocalizedES = 'sub hello in spanish'
+  const myGroup_groupArray_row1Text = 'group array row 1'
+  const myGroup_groupArray_row2Text = 'group array row 2'
   const myArraySubField1 = 'hello 1'
   const myArraySubField2 = 'hello 2'
+  const subSubFieldRow1SubRow1 = 'row 1 subrow 1'
+  const subSubFieldRow1SubRow2 = 'row 1 subrow 2'
+  const subSubFieldRow2SubRow1 = 'row 2 subrow 1'
+  const subSubFieldRow2SubRow2 = 'row 2 subrow 2'
 
   beforeAll(async () => {
     payloadConfig = await payloadConfigPromise
@@ -91,6 +99,7 @@ describe('SQLite Tests', () => {
         { pagesID: pagesRes[1].id, parent: post.id, order: 2, path: 'relationHasMany' },
         { peopleID: peopleRes[0].id, parent: post.id, order: 1, path: 'relationHasManyPoly' },
         { pagesID: pagesRes[1].id, parent: post.id, order: 2, path: 'relationHasManyPoly' },
+        { postsID: post.id, parent: post.id, path: 'selfReferencingRelationship' },
       ])
       .returning()
       .all()
@@ -115,6 +124,27 @@ describe('SQLite Tests', () => {
       .values([
         { _order: 1, _parentID: post.id, _locale: 'en' },
         { _order: 2, _parentID: post.id, _locale: 'en' },
+      ])
+      .returning()
+      .all()
+
+    db
+      .insert(posts_my_array_my_sub_array)
+      .values([
+        { _order: 1, _parentID: arrayRows[0].id, _locale: 'en', subSubField: subSubFieldRow1SubRow1 },
+        { _order: 2, _parentID: arrayRows[0].id, _locale: 'en', subSubField: subSubFieldRow1SubRow2 },
+        { _order: 1, _parentID: arrayRows[1].id, _locale: 'en', subSubField: subSubFieldRow2SubRow1 },
+        { _order: 2, _parentID: arrayRows[1].id, _locale: 'en', subSubField: subSubFieldRow2SubRow2 },
+      ])
+      .returning()
+      .all()
+
+
+    db
+      .insert(posts_my_group_group_array)
+      .values([
+        { _order: 1, _parentID: post.id, groupArrayText: myGroup_groupArray_row1Text },
+        { _order: 1, _parentID: post.id, groupArrayText: myGroup_groupArray_row2Text },
       ])
       .returning()
       .all()
@@ -170,10 +200,17 @@ describe('SQLite Tests', () => {
     expect(payloadResult[0].myGroup?.subFieldLocalized).toEqual(myGroup_subFieldLocalizedEN)
     expect(payloadResult[0].myGroup?.subGroup?.subSubField).toEqual(myGroup_subGroup_subSubField)
     expect(payloadResult[0].myGroup?.subGroup?.subSubFieldLocalized).toEqual(myGroup_subGroup_subSubFieldLocalizedEN)
+    expect(payloadResult[0].myGroup?.groupArray[0].groupArrayText).toEqual(myGroup_groupArray_row1Text)
+    expect(payloadResult[0].myGroup?.groupArray[1].groupArrayText).toEqual(myGroup_groupArray_row2Text)
 
     // Array tests
     expect(payloadResult[0].myArray?.[0]?.subField).toEqual(myArraySubField1)
     expect(payloadResult[0].myArray?.[1]?.subField).toEqual(myArraySubField2)
+
+    expect(payloadResult[0].myArray?.[0]?.mySubArray[0].subSubField).toEqual(subSubFieldRow1SubRow1)
+    expect(payloadResult[0].myArray?.[0]?.mySubArray[1].subSubField).toEqual(subSubFieldRow1SubRow2)
+    expect(payloadResult[0].myArray?.[1]?.mySubArray[0].subSubField).toEqual(subSubFieldRow2SubRow1)
+    expect(payloadResult[0].myArray?.[1]?.mySubArray[1].subSubField).toEqual(subSubFieldRow2SubRow2)
 
     // Relationship hasOne
     expect(typeof payloadResult[0].relationHasOne).toEqual('object')

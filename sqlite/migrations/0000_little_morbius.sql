@@ -71,6 +71,24 @@ CREATE TABLE `posts_my_array_locales` (
 	FOREIGN KEY (`_parent_id`) REFERENCES `posts_my_array`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
+CREATE TABLE `posts_my_array_my_sub_array` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`_locale` text,
+	`_order` integer NOT NULL,
+	`_parent_id` integer,
+	`sub_sub_field` text,
+	FOREIGN KEY (`_parent_id`) REFERENCES `posts_my_array`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `posts_my_group_group_array` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`_locale` text,
+	`_order` integer NOT NULL,
+	`_parent_id` integer,
+	`group_array_text` text,
+	FOREIGN KEY (`_parent_id`) REFERENCES `posts`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
 CREATE TABLE `posts_relationships` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`parent_id` integer NOT NULL,

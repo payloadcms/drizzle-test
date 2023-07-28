@@ -46,6 +46,22 @@ export const posts_my_array = sqliteTable('posts_my_array', {
   _parentID: integer('_parent_id').references(() => posts.id),
 })
 
+export const posts_my_array_my_sub_array = sqliteTable('posts_my_array_my_sub_array', {
+  id: integer('id').primaryKey(),
+  _locale: text('_locale'),
+  _order: integer('_order').notNull(),
+  _parentID: integer('_parent_id').references(() => posts_my_array.id),
+  subSubField: text('sub_sub_field'),
+})
+
+export const posts_my_group_group_array = sqliteTable('posts_my_group_group_array', {
+  id: integer('id').primaryKey(),
+  _locale: text('_locale'),
+  _order: integer('_order').notNull(),
+  _parentID: integer('_parent_id').references(() => posts.id),
+  groupArrayText: text('group_array_text'),
+})
+
 export const posts_block1 = sqliteTable('posts_block1', {
   id: integer('id').primaryKey(),
   nonLocalizedText: text('non_localized_text'),
@@ -93,23 +109,23 @@ export const pages = sqliteTable('pages', {
 })
 
 export const postsRelations = relations(posts, ({ many }) => ({
-  _relationships: many(posts_relationships),
+  _relationships: many(posts_relationships, {
+    relationName: '_relationships'
+  }),
   _locales: many(posts_locales),
   _blocks_block1: many(posts_block1),
   _blocks_block2: many(posts_block2),
   myArray: many(posts_my_array),
+  myGroup_groupArray: many(posts_my_group_group_array),
 }))
 
 export const postsRelationshipsRelations = relations(posts_relationships, ({ one }) => ({
   parent: one(posts, {
-    relationName: 'parent',
+    relationName: '_relationships',
     fields: [posts_relationships.parent],
     references: [posts.id],
   }),
-  // Self-referencing is currently blocked,
-  // we are waiting on a fix from Drizzle
   postsID: one(posts, {
-    relationName: 'postsID',
     fields: [posts_relationships.postsID],
     references: [posts.id],
   }),
@@ -140,6 +156,21 @@ export const postsMyArrayRelations = relations(posts_my_array, ({ one, many }) =
     references: [posts.id],
   }),
   _locales: many(posts_my_array_locales),
+  mySubArray: many(posts_my_array_my_sub_array),
+}))
+
+export const postsMyArrayMySubArrayRelations = relations(posts_my_array_my_sub_array, ({ one, many }) => ({
+  _parentID: one(posts_my_array, {
+    fields: [posts_my_array_my_sub_array._parentID],
+    references: [posts_my_array.id],
+  }),
+}))
+
+export const postsMyGroupGroupArrayRelations = relations(posts_my_group_group_array, ({ one }) => ({
+  _parentID: one(posts, {
+    fields: [posts_my_group_group_array._parentID],
+    references: [posts.id],
+  }),
 }))
 
 export const postsMyArrayLocalesRelations = relations(

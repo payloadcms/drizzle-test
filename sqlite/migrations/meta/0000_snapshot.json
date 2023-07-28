@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "a66d43ff-02a7-43be-a3f7-b1873a0b326b",
+  "id": "0a674eb2-5d9b-40e7-87ba-d02c18c176f9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "pages": {
@@ -436,6 +436,122 @@
           "name": "posts_my_array_locales__parent_id_posts_my_array_id_fk",
           "tableFrom": "posts_my_array_locales",
           "tableTo": "posts_my_array",
+          "columnsFrom": [
+            "_parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "posts_my_array_my_sub_array": {
+      "name": "posts_my_array_my_sub_array",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_locale": {
+          "name": "_locale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "sub_sub_field": {
+          "name": "sub_sub_field",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "posts_my_array_my_sub_array__parent_id_posts_my_array_id_fk": {
+          "name": "posts_my_array_my_sub_array__parent_id_posts_my_array_id_fk",
+          "tableFrom": "posts_my_array_my_sub_array",
+          "tableTo": "posts_my_array",
+          "columnsFrom": [
+            "_parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "posts_my_group_group_array": {
+      "name": "posts_my_group_group_array",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_locale": {
+          "name": "_locale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "group_array_text": {
+          "name": "group_array_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "posts_my_group_group_array__parent_id_posts_id_fk": {
+          "name": "posts_my_group_group_array__parent_id_posts_id_fk",
+          "tableFrom": "posts_my_group_group_array",
+          "tableTo": "posts",
           "columnsFrom": [
             "_parent_id"
           ],

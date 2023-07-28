@@ -21,8 +21,27 @@ export interface Post {
   number?: number;
   myArray?: {
     subField?: string;
+    mySubArray?: {
+      subSubField?: string;
+      id?: string;
+    }[];
     id?: string;
   }[];
+  myBlocks?: (
+    | {
+        nonLocalizedText?: string;
+        localizedText?: string;
+        id?: string;
+        blockName?: string;
+        blockType: 'block1';
+      }
+    | {
+        number?: number;
+        id?: string;
+        blockName?: string;
+        blockType: 'block2';
+      }
+  )[];
   relationHasOne?: string | Page;
   relationHasMany?: string[] | Page[];
   relationHasOnePoly?:
@@ -55,6 +74,7 @@ export interface Post {
             relationTo: 'pages';
           }
       )[];
+  selfReferencingRelationship?: string | Post;
   myGroup?: {
     subField?: string;
     subFieldLocalized?: string;
@@ -62,6 +82,10 @@ export interface Post {
       subSubField?: string;
       subSubFieldLocalized?: string;
     };
+    groupArray?: {
+      groupArrayText?: string;
+      id?: string;
+    }[];
   };
   updatedAt: string;
   createdAt: string;

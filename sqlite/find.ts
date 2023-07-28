@@ -3,6 +3,7 @@ import * as schema from './schema'
 import { SanitizedCollectionConfig } from 'payload/types'
 import { buildWithFromDepth } from './utilities/buildWithFromDepth'
 import { createLocaleWhereQuery } from './utilities/createLocaleWhereQuery'
+// import { buildFindManyArgs } from './buildFindQuery'
 
 type FindArgs = {
   collection: SanitizedCollectionConfig
@@ -22,6 +23,14 @@ export const find = ({
   fallbackLocale,
   locale,
 }: FindArgs) => {
+  // const findManyArgs = buildFindManyArgs({
+  //   collection,
+  //   collectionSlugs,
+  //   depth,
+  //   fallbackLocale,
+  //   locale,
+  // })
+
   const findManyArgs = {
     with: {
       _relationships: {
@@ -53,6 +62,19 @@ export const find = ({
               _parentID: false,
             },
           },
+          mySubArray: {
+            orderBy: ({ _order }, { asc }) => [asc(_order)],
+            columns: {
+              _parentID: false,
+              _order: false,
+            },
+          }
+        },
+      },
+      myGroup_groupArray: {
+        orderBy: ({ _order }, { asc }) => [asc(_order)],
+        columns: {
+          _parentID: false,
         },
       },
       _blocks_block1: {

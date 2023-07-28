@@ -30,7 +30,6 @@ describe('SQLite Tests', () => {
   let db: BetterSQLite3Database<typeof schema>
   let postsCollection: SanitizedCollectionConfig
   let payloadConfig: SanitizedConfig
-  let collectionSlugs: string[]
 
   const pages1Slug = 'first'
   const pages2Slug = 'second'
@@ -54,7 +53,6 @@ describe('SQLite Tests', () => {
   beforeAll(async () => {
     payloadConfig = await payloadConfigPromise
     postsCollection = payloadConfig.collections.find(({ slug }) => slug === 'posts')
-    collectionSlugs = payloadConfig.collections.map(({ slug }) => slug)
 
     // delete database before tests
     const databaseExists = fs.existsSync('./db.sqlite')
@@ -185,10 +183,10 @@ describe('SQLite Tests', () => {
 
   it('finds and transforms data to payload-expected shape', async () => {
     const result = find({
+      config: payloadConfig,
       db,
-      depth: 1,
+      depth: 0,
       collection: postsCollection,
-      collectionSlugs,
       locale: 'en',
     })
 
@@ -213,6 +211,40 @@ describe('SQLite Tests', () => {
     expect(payloadResult[0].myArray?.[1]?.mySubArray[1].subSubField).toEqual(subSubFieldRow2SubRow2)
 
     // Relationship hasOne
+    expect(payloadResult[0].relationHasOne).toEqual(1)
+
+    // Relationship hasOnePoly
+    // expect(typeof payloadResult[0].relationHasOnePoly).toEqual('object')
+
+    // if (typeof payloadResult[0].relationHasOnePoly === 'object') {
+    //   expect(payloadResult[0].relationHasOnePoly.relationTo).toEqual('people')
+
+    //   if (typeof payloadResult[0].relationHasOnePoly.value === 'object' && 'fullName' in payloadResult[0].relationHasOnePoly.value) {
+    //     expect(payloadResult[0].relationHasOnePoly.value?.fullName).toEqual(people1FullName)
+    //   }
+    // }
+  })
+
+  it('finds with specified locale', async () => {
+    expect(true).toStrictEqual(true)
+  })
+
+  it('finds with specified locale and fallback locale', async () => {
+    expect(true).toStrictEqual(true)
+  })
+
+  it('finds with depth: 1', async () => {
+    const result = find({
+      config: payloadConfig,
+      db,
+      depth: 1,
+      collection: postsCollection,
+      locale: 'en',
+    })
+
+    const payloadResult = transform<Post>({ data: result, locale: 'en', fields: postsCollection.fields })
+
+    // Relationship hasOne
     expect(typeof payloadResult[0].relationHasOne).toEqual('object')
 
     if (typeof payloadResult[0].relationHasOne === 'object') {
@@ -229,18 +261,6 @@ describe('SQLite Tests', () => {
         expect(payloadResult[0].relationHasOnePoly.value?.fullName).toEqual(people1FullName)
       }
     }
-  })
-
-  it('finds with specified locale', async () => {
-    expect(true).toStrictEqual(true)
-  })
-
-  it('finds with specified locale and fallback locale', async () => {
-    expect(true).toStrictEqual(true)
-  })
-
-  it('finds with depth: 0', async () => {
-    expect(true).toStrictEqual(true)
   })
 
   it('finds with depth: 3', async () => {

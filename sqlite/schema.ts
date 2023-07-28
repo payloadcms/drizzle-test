@@ -1,6 +1,17 @@
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
 import { relations } from 'drizzle-orm'
 
+const createRelationships = (table) => ({
+  id: integer('id').primaryKey(),
+  parent: integer('parent_id').references(() => table.id).notNull(),
+  path: text('path').notNull(),
+  order: integer('order'),
+  postsID: integer('posts_id').references(() => posts.id),
+  pagesID: integer('pages_id').references(() => pages.id),
+  peopleID: integer('people_id').references(() => people.id),
+  usersID: integer('users_id').references(() => users.id),
+})
+
 export const users = sqliteTable('users', {
   id: integer('id').primaryKey(),
   createdAt: integer('created_at', { mode: 'timestamp' }),
@@ -16,16 +27,21 @@ export const posts = sqliteTable('posts', {
   myGroup_subGroup_subSubField: text('my_group_sub_group_sub_sub_field'),
 })
 
-export const posts_relationships = sqliteTable('posts_relationships', {
+export const people = sqliteTable('people', {
   id: integer('id').primaryKey(),
-  parent: integer('parent_id').references(() => posts.id).notNull(),
-  path: text('path').notNull(),
-  order: integer('order'),
-  postsID: integer('posts_id').references(() => posts.id),
-  pagesID: integer('pages_id').references(() => pages.id),
-  peopleID: integer('people_id').references(() => people.id),
-  usersID: integer('users_id').references(() => users.id),
+  fullName: text('full_name'),
 })
+
+export const pages = sqliteTable('pages', {
+  id: integer('id').primaryKey(),
+  slug: text('slug'),
+})
+
+export const posts_relationships = sqliteTable('posts_relationships', createRelationships(posts))
+export const users_relationships = sqliteTable('users_relationships', createRelationships(users))
+export const pages_relationships = sqliteTable('pages_relationships', createRelationships(pages))
+
+export const people_relationships = sqliteTable('people_relationships', createRelationships(people))
 
 export const posts_locales = sqliteTable('posts_locales', {
   id: integer('id').primaryKey(),
@@ -98,15 +114,6 @@ export const posts_my_array_locales = sqliteTable('posts_my_array_locales', {
     .notNull(),
 })
 
-export const people = sqliteTable('people', {
-  id: integer('id').primaryKey(),
-  fullName: text('full_name'),
-})
-
-export const pages = sqliteTable('pages', {
-  id: integer('id').primaryKey(),
-  slug: text('slug'),
-})
 
 export const postsRelations = relations(posts, ({ many }) => ({
   _relationships: many(posts_relationships, {
@@ -119,29 +126,52 @@ export const postsRelations = relations(posts, ({ many }) => ({
   myGroup_groupArray: many(posts_my_group_group_array),
 }))
 
-export const postsRelationshipsRelations = relations(posts_relationships, ({ one }) => ({
-  parent: one(posts, {
+export const pagesRelations = relations(pages, ({ many }) => ({
+  _relationships: many(pages_relationships, {
+    relationName: '_relationships'
+  }),
+}))
+
+export const peopleRelations = relations(people, ({ many }) => ({
+  _relationships: many(people_relationships, {
+    relationName: '_relationships'
+  }),
+}))
+
+export const usersRelations = relations(users, ({ many }) => ({
+  _relationships: many(users_relationships, {
+    relationName: '_relationships'
+  }),
+}))
+
+export const createRelationshipsRelations = (table, relations_table) => ({ one }) => ({
+  parent: one(table, {
     relationName: '_relationships',
-    fields: [posts_relationships.parent],
-    references: [posts.id],
+    fields: [relations_table.parent],
+    references: [table.id],
   }),
   postsID: one(posts, {
-    fields: [posts_relationships.postsID],
+    fields: [relations_table.postsID],
     references: [posts.id],
   }),
   pagesID: one(pages, {
-    fields: [posts_relationships.pagesID],
+    fields: [relations_table.pagesID],
     references: [pages.id],
   }),
   peopleID: one(people, {
-    fields: [posts_relationships.peopleID],
+    fields: [relations_table.peopleID],
     references: [people.id],
   }),
   usersID: one(users, {
-    fields: [posts_relationships.usersID],
+    fields: [relations_table.usersID],
     references: [users.id],
   })
-}))
+})
+
+export const postsRelationshipsRelations = relations(posts_relationships, createRelationshipsRelations(posts, posts_relationships))
+export const pagesRelationshipsRelations = relations(pages_relationships, createRelationshipsRelations(pages, pages_relationships))
+export const peopleRelationshipsRelations = relations(people_relationships, createRelationshipsRelations(people, people_relationships))
+export const usersRelationshipsRelations = relations(users_relationships, createRelationshipsRelations(users, users_relationships))
 
 export const postsLocalesRelations = relations(posts_locales, ({ one }) => ({
   _parentID: one(posts, {

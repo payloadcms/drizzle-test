@@ -1,25 +1,32 @@
+import { SanitizedConfig } from "payload/config"
+import { buildFindManyArgs } from "../buildFindQuery"
+
 type BuildWithFromDepthArgs = {
-  collectionSlugs: string[]
+  config: SanitizedConfig
   depth: number
+  fallbackLocale?: string | false
+  locale?: string
 }
 
 export const buildWithFromDepth = ({
-  collectionSlugs,
-  depth
+  config,
+  depth,
+  fallbackLocale,
+  locale,
 }: BuildWithFromDepthArgs): Record<string, unknown> | undefined => {
-  if (depth <= 0) return undefined
+  const result = config.collections.reduce((slugs, coll) => {
+    const { slug } = coll
 
-  const result = collectionSlugs.reduce((slugs, slug) => {
-    // Self-referencing is currently blocked,
-    // we are waiting on a fix from Drizzle
-    // if (slug === 'posts') {
-    //   return slugs;
-    // }
+    if (depth >= 1) {
+      const args = buildFindManyArgs({
+        config,
+        collection: coll,
+        depth: depth - 1,
+        fallbackLocale,
+        locale,
+      })
 
-    if (depth === 1) {
-      slugs[`${slug}ID`] = true
-    } else {
-      slugs[`${slug}ID`] = buildWithFromDepth({ collectionSlugs, depth: depth - 1 })
+      slugs[`${slug}ID`] = args
     }
 
     return slugs

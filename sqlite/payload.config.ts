@@ -158,11 +158,14 @@ const config = buildConfig({
         {
           name: 'fullName',
           type: 'text',
-          localized: true,
         },
       ]
     },
-  ]
+  ],
+  localization: {
+    locales: ['en', 'es'],
+    defaultLocale: 'en'
+  }
 })
 
 export default config

@@ -1,6 +1,6 @@
 type MergeLocalesArgs = {
   data: Record<string, unknown>
-  fallbackLocale?: string
+  fallbackLocale?: string | false
   locale?: string
 }
 

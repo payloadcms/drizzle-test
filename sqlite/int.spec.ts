@@ -184,7 +184,7 @@ describe('SQLite Tests', () => {
   })
 
   it('finds and transforms data to payload-expected shape', async () => {
-    const result = find({
+    const [result] = find<Post>({
       config: payloadConfig,
       db,
       depth: 0,
@@ -192,50 +192,48 @@ describe('SQLite Tests', () => {
       locale: 'en',
     })
 
-    const payloadResult = transform<Post>({ config: payloadConfig, data: result[0], locale: 'en', fields: postsCollection.fields })
-
     // Group tests
-    expect(typeof payloadResult.myGroup).toEqual('object')
-    expect(payloadResult.myGroup?.subField).toEqual(myGroup_subField)
-    expect(payloadResult.myGroup?.subFieldLocalized).toEqual(myGroup_subFieldLocalizedEN)
-    expect(payloadResult.myGroup?.subGroup?.subSubField).toEqual(myGroup_subGroup_subSubField)
-    expect(payloadResult.myGroup?.subGroup?.subSubFieldLocalized).toEqual(myGroup_subGroup_subSubFieldLocalizedEN)
-    expect(payloadResult.myGroup?.groupArray[0].groupArrayText).toEqual(myGroup_groupArray_row1Text)
-    expect(payloadResult.myGroup?.groupArray[1].groupArrayText).toEqual(myGroup_groupArray_row2Text)
+    expect(typeof result.myGroup).toEqual('object')
+    expect(result.myGroup?.subField).toEqual(myGroup_subField)
+    expect(result.myGroup?.subFieldLocalized).toEqual(myGroup_subFieldLocalizedEN)
+    expect(result.myGroup?.subGroup?.subSubField).toEqual(myGroup_subGroup_subSubField)
+    expect(result.myGroup?.subGroup?.subSubFieldLocalized).toEqual(myGroup_subGroup_subSubFieldLocalizedEN)
+    expect(result.myGroup?.groupArray[0].groupArrayText).toEqual(myGroup_groupArray_row1Text)
+    expect(result.myGroup?.groupArray[1].groupArrayText).toEqual(myGroup_groupArray_row2Text)
 
     // Array tests
-    expect(payloadResult.myArray?.[0]?.subField).toEqual(myArraySubField1)
-    expect(payloadResult.myArray?.[1]?.subField).toEqual(myArraySubField2)
+    expect(result.myArray?.[0]?.subField).toEqual(myArraySubField1)
+    expect(result.myArray?.[1]?.subField).toEqual(myArraySubField2)
 
-    expect(payloadResult.myArray?.[0]?.mySubArray[0].subSubField).toEqual(subSubFieldRow1SubRow1)
-    expect(payloadResult.myArray?.[0]?.mySubArray[1].subSubField).toEqual(subSubFieldRow1SubRow2)
-    expect(payloadResult.myArray?.[1]?.mySubArray[0].subSubField).toEqual(subSubFieldRow2SubRow1)
-    expect(payloadResult.myArray?.[1]?.mySubArray[1].subSubField).toEqual(subSubFieldRow2SubRow2)
+    expect(result.myArray?.[0]?.mySubArray[0].subSubField).toEqual(subSubFieldRow1SubRow1)
+    expect(result.myArray?.[0]?.mySubArray[1].subSubField).toEqual(subSubFieldRow1SubRow2)
+    expect(result.myArray?.[1]?.mySubArray[0].subSubField).toEqual(subSubFieldRow2SubRow1)
+    expect(result.myArray?.[1]?.mySubArray[1].subSubField).toEqual(subSubFieldRow2SubRow2)
 
     // Relationship hasOne
-    expect(payloadResult.relationHasOne).toEqual(1)
+    expect(result.relationHasOne).toEqual(1)
 
     // Relationship hasOnePoly
-    expect(typeof payloadResult.relationHasOnePoly).toEqual('object')
+    expect(typeof result.relationHasOnePoly).toEqual('object')
 
-    if (typeof payloadResult.relationHasOnePoly === 'object') {
-      expect(payloadResult.relationHasOnePoly.relationTo).toEqual('people')
-      expect(typeof payloadResult.relationHasOnePoly.value).toEqual('number')
+    if (typeof result.relationHasOnePoly === 'object') {
+      expect(result.relationHasOnePoly.relationTo).toEqual('people')
+      expect(typeof result.relationHasOnePoly.value).toEqual('number')
     }
 
     // Relationship hasMany
-    expect(payloadResult.relationHasMany[0]).toEqual(1)
-    expect(payloadResult.relationHasMany[1]).toEqual(2)
+    expect(result.relationHasMany[0]).toEqual(1)
+    expect(result.relationHasMany[1]).toEqual(2)
 
     // Relationship hasManyPoly
-    expect(payloadResult.relationHasManyPoly[0].relationTo).toEqual('people')
-    expect(payloadResult.relationHasManyPoly[0].value).toEqual(1)
-    expect(payloadResult.relationHasManyPoly[1].relationTo).toEqual('pages')
-    expect(payloadResult.relationHasManyPoly[1].value).toEqual(2)
+    expect(result.relationHasManyPoly[0].relationTo).toEqual('people')
+    expect(result.relationHasManyPoly[0].value).toEqual(1)
+    expect(result.relationHasManyPoly[1].relationTo).toEqual('pages')
+    expect(result.relationHasManyPoly[1].value).toEqual(2)
   })
 
   it('finds with specified locale', async () => {
-    const result = find({
+    const [result] = find<Post>({
       config: payloadConfig,
       db,
       depth: 2,
@@ -243,10 +241,8 @@ describe('SQLite Tests', () => {
       locale: 'es',
     })
 
-    const payloadResult = transform<Post>({ config: payloadConfig, data: result[0], locale: 'es', fields: postsCollection.fields })
-
-    expect(payloadResult.title).toStrictEqual(postTitleES)
-    expect(payloadResult.myGroup.subFieldLocalized).toStrictEqual(myGroup_subFieldLocalizedES)
+    expect(result.title).toStrictEqual(postTitleES)
+    expect(result.myGroup.subFieldLocalized).toStrictEqual(myGroup_subFieldLocalizedES)
   })
 
   it('finds with specified locale and fallback locale', async () => {
@@ -254,7 +250,7 @@ describe('SQLite Tests', () => {
   })
 
   it('finds with depth: 1', async () => {
-    const result = find({
+    const [result] = find<Post>({
       config: payloadConfig,
       db,
       depth: 1,
@@ -262,57 +258,55 @@ describe('SQLite Tests', () => {
       locale: 'en',
     })
 
-    const payloadResult = transform<Post>({ config: payloadConfig, data: result[0], locale: 'en', fields: postsCollection.fields })
-
     // Relationship hasOne
-    expect(typeof payloadResult.relationHasOne).toEqual('object')
+    expect(typeof result.relationHasOne).toEqual('object')
 
-    if (typeof payloadResult.relationHasOne === 'object') {
-      expect(payloadResult.relationHasOne.slug).toEqual(pages1Slug)
+    if (typeof result.relationHasOne === 'object') {
+      expect(result.relationHasOne.slug).toEqual(pages1Slug)
     }
 
     // Relationship hasOnePoly
-    expect(typeof payloadResult.relationHasOnePoly).toEqual('object')
+    expect(typeof result.relationHasOnePoly).toEqual('object')
 
-    if (typeof payloadResult.relationHasOnePoly === 'object') {
-      expect(payloadResult.relationHasOnePoly.relationTo).toEqual('people')
+    if (typeof result.relationHasOnePoly === 'object') {
+      expect(result.relationHasOnePoly.relationTo).toEqual('people')
 
-      if (typeof payloadResult.relationHasOnePoly.value === 'object' && 'fullName' in payloadResult.relationHasOnePoly.value) {
-        expect(payloadResult.relationHasOnePoly.value?.fullName).toEqual(people1FullName)
+      if (typeof result.relationHasOnePoly.value === 'object' && 'fullName' in result.relationHasOnePoly.value) {
+        expect(result.relationHasOnePoly.value?.fullName).toEqual(people1FullName)
       }
     }
 
     // Relationship hasMany
-    expect(typeof payloadResult.relationHasMany[0]).toEqual('object')
+    expect(typeof result.relationHasMany[0]).toEqual('object')
 
-    if (typeof payloadResult.relationHasMany[0] === 'object') {
-      expect(payloadResult.relationHasMany[0].slug).toEqual(pages1Slug)
+    if (typeof result.relationHasMany[0] === 'object') {
+      expect(result.relationHasMany[0].slug).toEqual(pages1Slug)
     }
 
-    expect(typeof payloadResult.relationHasMany[1]).toEqual('object')
+    expect(typeof result.relationHasMany[1]).toEqual('object')
 
-    if (typeof payloadResult.relationHasMany[1] === 'object') {
-      expect(payloadResult.relationHasMany[1].slug).toEqual(pages2Slug)
+    if (typeof result.relationHasMany[1] === 'object') {
+      expect(result.relationHasMany[1].slug).toEqual(pages2Slug)
     }
 
     // Relationship hasManyPoly
-    expect(payloadResult.relationHasManyPoly[0].relationTo).toEqual('people')
-    expect(typeof payloadResult.relationHasManyPoly[0].value).toEqual('object')
+    expect(result.relationHasManyPoly[0].relationTo).toEqual('people')
+    expect(typeof result.relationHasManyPoly[0].value).toEqual('object')
 
-    if (typeof payloadResult.relationHasManyPoly[0].value === 'object' && 'fullName' in payloadResult.relationHasManyPoly[0].value) {
-      expect(payloadResult.relationHasManyPoly[0].value.fullName).toEqual(people1FullName)
+    if (typeof result.relationHasManyPoly[0].value === 'object' && 'fullName' in result.relationHasManyPoly[0].value) {
+      expect(result.relationHasManyPoly[0].value.fullName).toEqual(people1FullName)
     }
 
-    expect(payloadResult.relationHasManyPoly[1].relationTo).toEqual('pages')
-    expect(typeof payloadResult.relationHasManyPoly[1].value).toEqual('object')
+    expect(result.relationHasManyPoly[1].relationTo).toEqual('pages')
+    expect(typeof result.relationHasManyPoly[1].value).toEqual('object')
 
-    if (typeof payloadResult.relationHasManyPoly[1].value === 'object' && 'slug' in payloadResult.relationHasManyPoly[1].value) {
-      expect(payloadResult.relationHasManyPoly[1].value.slug).toEqual(pages2Slug)
+    if (typeof result.relationHasManyPoly[1].value === 'object' && 'slug' in result.relationHasManyPoly[1].value) {
+      expect(result.relationHasManyPoly[1].value.slug).toEqual(pages2Slug)
     }
   })
 
   it('finds with depth: 2', async () => {
-    const result = find({
+    const [result] = find<Post>({
       config: payloadConfig,
       db,
       depth: 2,
@@ -320,18 +314,16 @@ describe('SQLite Tests', () => {
       locale: 'en',
     })
 
-    const payloadResult = transform<Post>({ config: payloadConfig, data: result[0], locale: 'en', fields: postsCollection.fields })
+    expect(typeof result.selfReferencingRelationship).toEqual('object')
 
-    expect(typeof payloadResult.selfReferencingRelationship).toEqual('object')
+    if (typeof result.selfReferencingRelationship === 'object') {
+      expect(typeof result.selfReferencingRelationship).toEqual('object')
 
-    if (typeof payloadResult.selfReferencingRelationship === 'object') {
-      expect(typeof payloadResult.selfReferencingRelationship).toEqual('object')
+      expect(typeof result.selfReferencingRelationship.selfReferencingRelationship).toEqual('object')
 
-      expect(typeof payloadResult.selfReferencingRelationship.selfReferencingRelationship).toEqual('object')
-
-      if (typeof payloadResult.selfReferencingRelationship.selfReferencingRelationship === 'object') {
-        expect(typeof payloadResult.selfReferencingRelationship.selfReferencingRelationship).toEqual('object')
-        expect(typeof payloadResult.selfReferencingRelationship.selfReferencingRelationship.selfReferencingRelationship).toEqual('number')
+      if (typeof result.selfReferencingRelationship.selfReferencingRelationship === 'object') {
+        expect(typeof result.selfReferencingRelationship.selfReferencingRelationship).toEqual('object')
+        expect(typeof result.selfReferencingRelationship.selfReferencingRelationship.selfReferencingRelationship).toEqual('number')
       }
     }
 

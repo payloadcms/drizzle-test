@@ -3,6 +3,8 @@ import * as schema from './schema'
 import { SanitizedCollectionConfig } from 'payload/types'
 import { buildFindManyArgs } from './buildFindQuery'
 import { SanitizedConfig } from 'payload/config'
+import { TypeWithID } from 'payload/dist/collections/config/types'
+import { transform } from './transform'
 
 type FindArgs = {
   config: SanitizedConfig
@@ -14,14 +16,14 @@ type FindArgs = {
 }
 
 // We can make one query to get docs with locales and array / block fields
-export const find = ({
+export const find = <T extends TypeWithID>({
   config,
   collection,
   db,
   depth,
   fallbackLocale,
   locale,
-}: FindArgs) => {
+}: FindArgs): T[] => {
   const findManyArgs = buildFindManyArgs({
     config,
     collection,
@@ -30,7 +32,13 @@ export const find = ({
     locale,
   })
 
-  const result = db.query[collection.slug].findMany(findManyArgs)
+  const results = db.query[collection.slug].findMany(findManyArgs)
 
-  return result
+  return results.map((data) => transform<T>({
+    config,
+    data,
+    locale,
+    fallbackLocale,
+    fields: collection.fields
+  }))
 }

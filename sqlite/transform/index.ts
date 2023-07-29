@@ -9,7 +9,7 @@ import { SanitizedConfig } from 'payload/config'
 type TransformArgs = {
   config: SanitizedConfig
   data: Record<string, unknown>
-  fallbackLocale?: string
+  fallbackLocale?: string | false
   fields: Field[]
   locale?: string
 }

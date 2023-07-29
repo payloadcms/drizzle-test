@@ -2,12 +2,18 @@ import { fieldAffectsData } from 'payload/dist/fields/config/types'
 import { Field } from 'payload/types'
 import { mergeLocales } from './mergeLocales'
 import { BlocksMap } from '../utilities/createBlocksMap'
+import { transform } from '.'
+import { SanitizedConfig } from 'payload/config'
 
 type TraverseFieldsArgs = {
   /**
    * Pre-formatted blocks map
    */
   blocks: BlocksMap
+  /**
+   * The full Payload config
+   */
+  config: SanitizedConfig
   /**
    * The full data, as returned from the Drizzle query
    */
@@ -46,6 +52,7 @@ type TraverseFieldsArgs = {
 // for each field type into required Payload shape
 export const traverseFields = <T extends Record<string, unknown>>({
   blocks,
+  config,
   data,
   fallbackLocale,
   fields,
@@ -69,6 +76,7 @@ export const traverseFields = <T extends Record<string, unknown>>({
 
               return traverseFields<T>({
                 blocks,
+                config,
                 data,
                 fields: field.fields,
                 locale,
@@ -94,6 +102,7 @@ export const traverseFields = <T extends Record<string, unknown>>({
               if (block) {
                 return traverseFields<T>({
                   blocks,
+                  config,
                   data,
                   fields: block.fields,
                   locale,
@@ -128,6 +137,7 @@ export const traverseFields = <T extends Record<string, unknown>>({
 
           result[field.name] = traverseFields<Record<string, unknown>>({
             blocks,
+            config,
             data,
             fields: field.fields,
             locale,
@@ -148,17 +158,51 @@ export const traverseFields = <T extends Record<string, unknown>>({
             if (relation) {
               // Handle hasOne Poly
               if (Array.isArray(field.relationTo)) {
-                const matchedRelation = Object.entries(relation).find(([, val]) => typeof val === 'object' && val !== null)
+                const matchedRelation = Object.entries(relation).find(([, val]) => val !== null)
 
                 if (matchedRelation) {
-                  result[field.name] = {
-                    relationTo: matchedRelation[0].replace('ID', ''),
-                    value: matchedRelation[1]
+                  const relationTo = matchedRelation[0].replace('ID', '')
+
+                  if (typeof matchedRelation[1] === 'object') {
+                    const relatedCollection = config.collections.find(({ slug }) => slug === relationTo)
+
+                    if (relatedCollection) {
+                      const value = transform({
+                        config,
+                        data: matchedRelation[1] as Record<string, unknown>,
+                        fallbackLocale,
+                        fields: relatedCollection.fields,
+                        locale
+                      })
+
+                      result[field.name] = {
+                        relationTo,
+                        value,
+                      }
+                    }
+                  } else {
+                    result[field.name] = {
+                      relationTo,
+                      value: matchedRelation[1]
+                    }
                   }
                 }
               } else {
                 // Handle hasOne
-                result[field.name] = relation[`${field.relationTo}ID`]
+                const relatedData = relation[`${field.relationTo}ID`]
+
+                if (typeof relatedData === 'object' && relatedData !== null) {
+                  const relatedCollection = config.collections.find(({ slug }) => slug === field.relationTo)
+                  result[field.name] = transform({
+                    config,
+                    data: relatedData as Record<string, unknown>,
+                    fallbackLocale,
+                    fields: relatedCollection.fields,
+                    locale,
+                  })
+                } else {
+                  result[field.name] = relatedData
+                }
               }
             }
           } else {
@@ -168,18 +212,54 @@ export const traverseFields = <T extends Record<string, unknown>>({
 
             relationPathMatch.forEach((relation) => {
               // Handle hasMany
-              if (Array.isArray(field.relationTo)) {
-                const matchedRelation = Object.entries(relation).find(([, val]) => typeof val === 'object' && val !== null)
+              if (!Array.isArray(field.relationTo)) {
+                const relatedCollection = config.collections.find(({ slug }) => slug === field.relationTo)
+                const relatedData = relation[`${field.relationTo}ID`]
 
-                if (matchedRelation) {
-                  relationships.push({
-                    relationTo: matchedRelation[0].replace('ID', ''),
-                    value: matchedRelation[1]
-                  })
+                if (relatedData) {
+                  if (typeof relatedData === 'object' && relatedData !== null) {
+                    relationships.push(transform({
+                      config,
+                      data: relatedData as Record<string, unknown>,
+                      fallbackLocale,
+                      fields: relatedCollection.fields,
+                      locale,
+                    }))
+                  } else {
+                    relationships.push(relatedData)
+                  }
                 }
               } else {
                 // Handle hasMany Poly
-                relationships.push(relation[`${field.relationTo}ID`])
+                const matchedRelation = Object.entries(relation).find(([key, val]) => val !== null && key !== 'order')
+
+                if (matchedRelation) {
+                  const relationTo = matchedRelation[0].replace('ID', '')
+
+                  if (typeof matchedRelation[1] === 'object') {
+                    const relatedCollection = config.collections.find(({ slug }) => slug === relationTo)
+
+                    if (relatedCollection) {
+                      const value = transform({
+                        config,
+                        data: matchedRelation[1] as Record<string, unknown>,
+                        fallbackLocale,
+                        fields: relatedCollection.fields,
+                        locale
+                      })
+
+                      relationships.push({
+                        relationTo,
+                        value,
+                      })
+                    }
+                  } else {
+                    relationships.push({
+                      relationTo,
+                      value: matchedRelation[1]
+                    })
+                  }
+                }
               }
             })
 

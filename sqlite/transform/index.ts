@@ -4,9 +4,11 @@ import { createRelationshipMap } from '../utilities/createRelationshipMap'
 import { mergeLocales } from './mergeLocales'
 import { TypeWithID } from 'payload/dist/collections/config/types'
 import { createBlocksMap } from '../utilities/createBlocksMap'
+import { SanitizedConfig } from 'payload/config'
 
 type TransformArgs = {
-  data: Record<string, unknown>[]
+  config: SanitizedConfig
+  data: Record<string, unknown>
   fallbackLocale?: string
   fields: Field[]
   locale?: string
@@ -15,32 +17,33 @@ type TransformArgs = {
 // This is the entry point to transform Drizzle output data
 // into the shape Payload expects based on field schema
 export const transform = <T extends TypeWithID>({
+  config,
   data,
   fallbackLocale,
   fields,
   locale,
-}: TransformArgs): T[] => {
-  return data.map((row) => {
-    let relationships: Record<string, Record<string, unknown>[]> = {};
+}: TransformArgs): T => {
+  let relationships: Record<string, Record<string, unknown>[]> = {};
 
-    if ('_relationships' in row) {
-      relationships = createRelationshipMap(row._relationships)
-      delete row._relationships
-    }
+  if ('_relationships' in data) {
+    relationships = createRelationshipMap(data._relationships)
+    delete data._relationships
+  }
 
-    const blocks = createBlocksMap(row)
+  const blocks = createBlocksMap(data)
 
-    const dataWithLocales = mergeLocales({ data: row, locale, fallbackLocale })
+  const dataWithLocales = mergeLocales({ data, locale, fallbackLocale })
 
-    return traverseFields<T>({
-      blocks,
-      data: row,
-      fields,
-      locale,
-      path: '',
-      relationships,
-      siblingData: dataWithLocales,
-      table: dataWithLocales,
-    })
+  return traverseFields<T>({
+    blocks,
+    config,
+    data,
+    fields,
+    locale,
+    path: '',
+    relationships,
+    siblingData: dataWithLocales,
+    table: dataWithLocales,
   })
+
 }
